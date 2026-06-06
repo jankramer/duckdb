@@ -29,7 +29,7 @@ set(SHELL_SOURCES
 
 add_executable(shell ${SHELL_SOURCES})
 
-target_link_libraries(shell duckdb_static ${DUCKDB_EXTRA_LINK_FLAGS})
+target_link_libraries(shell duckdb ${DUCKDB_EXTRA_LINK_FLAGS})
 link_threads(shell "")
 if(STATIC_LIBCPP)
   message("Statically linking CLI")
