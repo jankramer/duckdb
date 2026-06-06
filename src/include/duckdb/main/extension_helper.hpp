@@ -174,13 +174,13 @@ public:
 	static bool IsFullPath(const string &extension);
 
 	//! Lookup a name + type in an ExtensionFunctionEntry list
-	template <size_t N>
-	static vector<pair<string, CatalogType>>
-	FindExtensionInFunctionEntries(const string &name, const ExtensionFunctionEntry (&entries)[N]) {
+	template <class ENTRIES>
+	static vector<pair<string, CatalogType>> FindExtensionInFunctionEntries(const string &name,
+	                                                                        const ENTRIES &entries) {
 		auto lcase = StringUtil::Lower(name);
 
 		vector<pair<string, CatalogType>> result;
-		for (idx_t i = 0; i < N; i++) {
+		for (idx_t i = 0; i < entries.size(); i++) {
 			auto &element = entries[i];
 			if (element.name == lcase) {
 				result.push_back(make_pair(element.extension, element.type));
@@ -189,36 +189,36 @@ public:
 		return result;
 	}
 
-	template <idx_t N>
-	static idx_t ArraySize(const ExtensionEntry (&entries)[N]) {
-		return N;
+	template <class ENTRIES>
+	static idx_t ArraySize(const ENTRIES &entries) {
+		return entries.size();
 	}
 
-	template <idx_t N>
-	static const ExtensionEntry *GetArrayEntry(const ExtensionEntry (&entries)[N], idx_t entry) {
-		if (entry >= N) {
+	template <class ENTRIES>
+	static const typename ENTRIES::value_type *GetArrayEntry(const ENTRIES &entries, idx_t entry) {
+		if (entry >= entries.size()) {
 			return nullptr;
 		}
-		return entries + entry;
+		return &entries[entry];
 	}
 
 	//! Lookup a name in an ExtensionEntry list
-	template <idx_t N>
-	static string FindExtensionInEntries(const string &name, const ExtensionEntry (&entries)[N]) {
+	template <class ENTRIES>
+	static string FindExtensionInEntries(const string &name, const ENTRIES &entries) {
 		auto lcase = StringUtil::Lower(name);
 
-		auto it =
-		    std::find_if(entries, entries + N, [&](const ExtensionEntry &element) { return element.name == lcase; });
+		auto it = std::find_if(entries.begin(), entries.end(),
+		                       [&](const ExtensionEntry &element) { return element.name == lcase; });
 
-		if (it != entries + N && it->name == lcase) {
+		if (it != entries.end() && it->name == lcase) {
 			return it->extension;
 		}
 		return "";
 	}
 
 	//! Lookup a name in an extension entry and try to autoload it
-	template <idx_t N>
-	static void TryAutoloadFromEntry(DatabaseInstance &db, const string &entry, const ExtensionEntry (&entries)[N]) {
+	template <class ENTRIES>
+	static void TryAutoloadFromEntry(DatabaseInstance &db, const string &entry, const ENTRIES &entries) {
 #ifndef DUCKDB_DISABLE_EXTENSION_LOAD
 		if (Settings::Get<AutoloadKnownExtensionsSetting>(db)) {
 			auto extension_name = ExtensionHelper::FindExtensionInEntries(entry, entries);
@@ -229,8 +229,7 @@ public:
 #endif
 	}
 
-	//! Whether an extension can be autoloaded (i.e. it's registered as an autoloadable extension in
-	//! extension_entries.hpp)
+	//! Whether an extension can be autoloaded (i.e. it's registered in the generated autoload metadata)
 	static bool CanAutoloadExtension(const string &ext_name);
 
 	//! Utility functions for creating meaningful error messages regarding missing extensions

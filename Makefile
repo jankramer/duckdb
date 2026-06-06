@@ -192,6 +192,9 @@ endif
 ifneq ($(EXTENSION_CONFIGS),)
 	CMAKE_VARS:=${CMAKE_VARS} -DDUCKDB_EXTENSION_CONFIGS="$(EXTENSION_CONFIGS)"
 endif
+ifneq ($(EXTENSION_DIRECTORIES),)
+	CMAKE_VARS:=${CMAKE_VARS} -DEXTENSION_DIRECTORIES="$(EXTENSION_DIRECTORIES)"
+endif
 ifeq ($(EXTENSION_TESTS_ONLY), 1)
 	CMAKE_VARS:=${CMAKE_VARS} -DEXTENSION_TESTS_ONLY=1
 endif
@@ -354,6 +357,13 @@ release: ${EXTENSION_CONFIG_STEP}
 	cd build/release && \
 	cmake $(GENERATOR) $(FORCE_COLOR) ${WARNINGS_AS_ERRORS} ${FORCE_WARN_UNUSED_FLAG} ${FORCE_32_BIT_FLAG} ${DISABLE_UNITY_FLAG} ${DISABLE_SANITIZER_FLAG} ${STATIC_LIBCPP} ${CMAKE_VARS} ${CMAKE_VARS_BUILD} -DCMAKE_BUILD_TYPE=Release ../.. && \
 	cmake --build . --config Release
+
+.PHONY: extension_entries
+extension_entries: ${EXTENSION_CONFIG_STEP}
+	mkdir -p ./build/release && \
+	cd build/release && \
+	cmake $(GENERATOR) $(FORCE_COLOR) ${WARNINGS_AS_ERRORS} ${FORCE_WARN_UNUSED_FLAG} ${FORCE_32_BIT_FLAG} ${DISABLE_UNITY_FLAG} ${DISABLE_SANITIZER_FLAG} ${STATIC_LIBCPP} ${CMAKE_VARS} ${CMAKE_VARS_BUILD} -DCMAKE_BUILD_TYPE=Release ../.. && \
+	cmake --build . --target duckdb_extension_entries --config Release
 
 wasm_mvp: ${EXTENSION_CONFIG_STEP}
 	mkdir -p ./build/wasm_mvp && \

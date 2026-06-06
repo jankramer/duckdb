@@ -94,7 +94,7 @@ foreach(LINK_LIB ${DUCKDB_LINK_LIBS})
 endforeach(LINK_LIB)
 
 add_library(duckdb_static STATIC ${ALL_OBJECT_FILES} ${LINK_OBJECTS})
-target_link_libraries(duckdb_static PUBLIC ${DUCKDB_SYSTEM_LIBS})
+target_link_libraries(duckdb_static PUBLIC duckdb_extension_entries ${DUCKDB_SYSTEM_LIBS})
 link_threads(duckdb_static PUBLIC)
 
 #
@@ -105,7 +105,7 @@ link_threads(duckdb_static PUBLIC)
 #
 
 add_library(duckdb SHARED ${ALL_OBJECT_FILES} ${LINK_OBJECTS})
-target_link_libraries(duckdb PUBLIC ${DUCKDB_SYSTEM_LIBS})
+target_link_libraries(duckdb PUBLIC duckdb_extension_entries ${DUCKDB_SYSTEM_LIBS})
 link_extension_libraries(duckdb PRIVATE)
 
 link_threads(duckdb PUBLIC)
@@ -148,7 +148,7 @@ install(FILES "${PROJECT_SOURCE_DIR}/src/include/duckdb.hpp"
         DESTINATION "${INSTALL_INCLUDE_DIR}")
 
 install(
-  TARGETS duckdb duckdb_static
+  TARGETS duckdb duckdb_static duckdb_extension_entries
   EXPORT "${DUCKDB_EXPORT_SET}"
   LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
   ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
